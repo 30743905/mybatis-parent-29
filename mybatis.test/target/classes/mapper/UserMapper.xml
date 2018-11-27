@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--namespace指定Mapper对应的Dao接口，并对该接口生成代理，注意：该namespace指定的接口可以不存在-->
+<mapper namespace="org.simon.dao.UserDao">
+
+  <select id="queryall" resultType="org.simon.po.UserBean">
+    select * from user
+  </select>
+
+  <select id="select" parameterType="org.simon.po.UserBean" resultType="org.simon.po.UserBean">
+    select * from user where id = #{id} and username = #{username}
+  </select>
+
+  <select id="select2" resultType="org.simon.po.UserBean">
+    select * from user where id = #{id} and username = #{username}
+  </select>
+
+  <insert id="insert" parameterType="org.simon.po.UserBean">
+    insert
+    into            user(username, birthday, sex, address)
+
+    values (#{username}, #{birthday}, #{sex}, #{address} )
+  </insert>
+
+</mapper>

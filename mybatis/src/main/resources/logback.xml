@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration  debug="true" scan="true" scanPeriod="10 seconds">
+    <property name="logHome" value="/cloud/dahua/TheNext/eventDispatcher/log"/>
+    <property name="logPattern" value="[%d{yyyy-MM-dd HH:mm:ss.SSS}][%p][EventDispatcher:%t][%C{0}:%M:%L]%X{tracerId}%X{errorId},%m%n"/>
+
+    <!--控制台-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd/HH:mm:ss.SSS}][%X{tracerId}][%t][%p][%C{30}.%M] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--metric日志 metricLog.log-->
+    <appender name="metricAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logHome}/metricLog.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${logHome}/temp/metric-log.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>${logPattern}</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--业务栈执行日志文件 stacktrace.log-->
+    <appender name="stacktraceAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logHome}/stacktraceLog.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${logHome}/temp/stacktrace-log.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>${logPattern}</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--详细日志文件 detail.log-->
+    <appender name="detailAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logHome}/detailLog.log</File>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${logHome}/temp/detail-log.%d{yyyy-MM-dd}.%i.log.gz</FileNamePattern>
+            <maxHistory>10</maxHistory>
+            <maxFileSize>300MB</maxFileSize>
+            <totalSizeCap>20GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>${logPattern}</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--汇聚所有error日志 error.log-->
+    <appender name="errorAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logHome}/errorLog.log</File>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${logHome}/temp/error-log.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>${logPattern}</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--sql日志文件 sqlLog.log-->
+    <appender name="sqlAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logHome}/sqlLog.log</File>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${logHome}/temp/sql-log.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>${logPattern}</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!--mq日志文件 sqlLog.log-->
+    <appender name="mqAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${logHome}/mqLog.log</File>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${logHome}/temp/mq-log.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>${logPattern}</Pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+
+
+    <logger name="metricLog" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="metricAppender"/>
+    </logger>
+    <logger name="stacktraceLog" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="stacktraceAppender"/>
+        <appender-ref ref="detailAppender"/>
+        <appender-ref ref="errorAppender"/>
+    </logger>
+
+    <!--注意：additivity默认是true，需要设置成false，表示不向rootLogger进行输出，
+    如果设置成true，LoggerFactory.getLogger("detailLog")进行输入的日志会同时输出到detailLogger和rootLogger-->
+    <logger name="detailLog" additivity="false">
+        <level value="INFO"/><!--这个leve只限制当前logger的级别，而不是的日志文件的级别，比如detailLog是INFO，stacktraceLog是DEBUG，detail日志文件中依然会存在stacktraceLog的DEBUG日志-->
+        <appender-ref ref="detailAppender"/>
+        <appender-ref ref="errorAppender"/>
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="errorLog" additivity="false">
+        <level value="warn"/>
+        <appender-ref ref="errorAppender"/>
+    </logger>
+
+
+    <!--将Spring等第三方框架的日志级别提升到WARN级别-->
+    <logger name="org.springframework" additivity="false" level="INFO"/>
+    <logger name="springfox" additivity="false" level="WARN"/>
+
+    <!--打印Mybatis的sql-->
+    <logger name="com.dahuatech.next.as.api.dao" level="INFO" additivity="false">
+        <appender-ref ref="sqlAppender"/>
+    </logger>
+    <logger name="org.mybatis" additivity="false" level="INFO">
+        <appender-ref ref="sqlAppender"/>
+    </logger>
+
+    <!--addtivity:是否向上级loger传递打印信息。默认是true,这里需要设置成false，否则会继续向root logger中也会输出日志-->
+    <!--addtivity的作用在于children-logger是否使用rootLogger配置的appender进行输出
+            false：表示只用当前logger的appender-ref。
+            true：表示当前logger的appender-ref和rootLogger的appender-ref都有效
+    -->
+    <logger name="org.springframework.amqp" additivity="false" level="WARN">
+        <appender-ref ref="mqAppender"/>
+    </logger>
+
+
+    <root level="info" additivity="false">
+        <appender-ref ref="detailAppender" />
+        <appender-ref ref="errorAppender"/>
+    </root>
+
+</configuration>
