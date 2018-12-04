@@ -739,6 +739,7 @@ public class Configuration {
   }
 
   public <T> void addMapper(Class<T> type) {
+    // 通过 MapperRegistry 绑定 mapper 类
     mapperRegistry.addMapper(type);
   }
 

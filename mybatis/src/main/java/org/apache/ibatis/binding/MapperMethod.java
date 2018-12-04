@@ -46,7 +46,9 @@ public class MapperMethod {
   private final MethodSignature method;
 
   public MapperMethod(Class<?> mapperInterface, Method method, Configuration config) {
+    // 创建 SqlCommand 对象，该对象包含一些和 SQL 相关的信息
     this.command = new SqlCommand(config, mapperInterface, method);
+    // 创建 MethodSignature 对象，从类名中可知，该对象包含了被拦截方法的一些信息
     this.method = new MethodSignature(config, mapperInterface, method);
   }
 
@@ -54,7 +56,9 @@ public class MapperMethod {
     Object result;
     switch (command.getType()) {
       case INSERT: {
+        // 对用户传入的参数进行转换，下同
       Object param = method.convertArgsToSqlCommandParam(args);
+        // 执行插入操作，rowCountResult 方法用于处理返回值
         result = rowCountResult(sqlSession.insert(command.getName(), param));
         break;
       }
@@ -69,26 +73,37 @@ public class MapperMethod {
         break;
       }
       case SELECT:
+        // 根据目标方法的返回类型进行相应的查询操作
         if (method.returnsVoid() && method.hasResultHandler()) {
+          /*
+           * 如果方法返回值为 void，但参数列表中包含 ResultHandler，表明使用者
+           * 想通过 ResultHandler 的方式获取查询结果，而非通过返回值获取结果
+           */
           executeWithResultHandler(sqlSession, args);
           result = null;
         } else if (method.returnsMany()) {
+          // 执行查询操作，并返回多个结果
           result = executeForMany(sqlSession, args);
         } else if (method.returnsMap()) {
+          // 执行查询操作，并将结果封装在 Map 中返回
           result = executeForMap(sqlSession, args);
         } else if (method.returnsCursor()) {
+          // 执行查询操作，并返回一个 Cursor 对象
           result = executeForCursor(sqlSession, args);
         } else {
           Object param = method.convertArgsToSqlCommandParam(args);
+          // 执行查询操作，并返回一个结果
           result = sqlSession.selectOne(command.getName(), param);
         }
         break;
       case FLUSH:
+        // 执行刷新操作
         result = sqlSession.flushStatements();
         break;
       default:
         throw new BindingException("Unknown execution method for: " + command.getName());
     }
+    // 如果方法的返回值为基本类型，而返回值却为 null，此种情况下应抛出异常
     if (result == null && method.getReturnType().isPrimitive() && !method.returnsVoid()) {
       throw new BindingException("Mapper method '" + command.getName() 
           + " attempted to return null from a method with a primitive return type (" + method.getReturnType() + ").");
@@ -208,6 +223,9 @@ public class MapperMethod {
 
   }
 
+  /**
+   * 前面说了 SqlCommand 中保存了一些和 SQL 相关的信息
+   */
   public static class SqlCommand {
 
     private final String name;
@@ -216,17 +234,25 @@ public class MapperMethod {
     public SqlCommand(Configuration configuration, Class<?> mapperInterface, Method method) {
       final String methodName = method.getName();
       final Class<?> declaringClass = method.getDeclaringClass();
+      // 解析 MappedStatement
       MappedStatement ms = resolveMappedStatement(mapperInterface, methodName, declaringClass,
           configuration);
+      // 检测当前方法是否有对应的 MappedStatement
       if (ms == null) {
+        // 检测当前方法是否有 @Flush 注解
         if (method.getAnnotation(Flush.class) != null) {
+          // 设置 name 和 type 遍历
           name = null;
           type = SqlCommandType.FLUSH;
         } else {
+          /*
+           * 若 ms == null 且方法无 @Flush 注解，此时抛出异常。这个异常比较常见，大家应该眼熟吧
+           */
           throw new BindingException("Invalid bound statement (not found): "
               + mapperInterface.getName() + "." + methodName);
         }
       } else {
+        // 设置 name 和 type 变量
         name = ms.getId();
         type = ms.getSqlCommandType();
         if (type == SqlCommandType.UNKNOWN) {
@@ -264,6 +290,9 @@ public class MapperMethod {
     }
   }
 
+  /**
+   * MethodSignature 即方法签名，顾名思义，该类保存了一些和目标方法相关的信息。比如目标方法的返回类型，目标方法的参数列表信息等。
+   */
   public static class MethodSignature {
 
     private final boolean returnsMany;
@@ -276,7 +305,12 @@ public class MapperMethod {
     private final Integer rowBoundsIndex;
     private final ParamNameResolver paramNameResolver;
 
+    /**
+     * 下面的代码用于检测目标方法的返回类型，以及解析目标方法参数列表。其中，检测返回类型的目的是为避免查询方法返回错误的类型。
+     * 比如我们要求接口方法返回一个对象，结果却返回了对象集合，这会导致类型转换错误。
+     */
     public MethodSignature(Configuration configuration, Class<?> mapperInterface, Method method) {
+      // 通过反射解析方法返回类型
       Type resolvedReturnType = TypeParameterResolver.resolveReturnType(method, mapperInterface);
       if (resolvedReturnType instanceof Class<?>) {
         this.returnType = (Class<?>) resolvedReturnType;
@@ -285,13 +319,21 @@ public class MapperMethod {
       } else {
         this.returnType = method.getReturnType();
       }
+
+      // 检测返回值类型是否是 void、集合或数组、Cursor、Map 等
       this.returnsVoid = void.class.equals(this.returnType);
       this.returnsMany = configuration.getObjectFactory().isCollection(this.returnType) || this.returnType.isArray();
       this.returnsCursor = Cursor.class.equals(this.returnType);
+      // 解析@MapKey 注解，获取注解内容
       this.mapKey = getMapKey(method);
       this.returnsMap = this.mapKey != null;
+      /*
+       * 获取RowBounds参数在参数列表中的位置，如果参数列表中包含多个RowBounds参数，此方法会抛出异常
+       */
       this.rowBoundsIndex = getUniqueParamIndex(method, RowBounds.class);
+      // 获取 ResultHandler 参数在参数列表中的位置
       this.resultHandlerIndex = getUniqueParamIndex(method, ResultHandler.class);
+      // 解析参数列表
       this.paramNameResolver = new ParamNameResolver(configuration, method);
     }
 

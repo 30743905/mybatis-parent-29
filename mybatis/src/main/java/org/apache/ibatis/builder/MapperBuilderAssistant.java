@@ -249,6 +249,9 @@ public class MapperBuilderAssistant extends BaseBuilder {
     return new Discriminator.Builder(configuration, resultMapping, namespaceDiscriminatorMap).build();
   }
 
+  /**
+   * SQL语句节点可以定义很多属性，这些属性和属性值最终存储在MappedStatement中。下面我们看一下MappedStatement的构建过程是怎样的。
+   */
   public MappedStatement addMappedStatement(
       String id,
       SqlSource sqlSource,
@@ -278,6 +281,7 @@ public class MapperBuilderAssistant extends BaseBuilder {
     id = applyCurrentNamespace(id, false);
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
 
+    // 创建建造器，设置各种属性
     MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, id, sqlSource, sqlCommandType)
         .resource(resource)
         .fetchSize(fetchSize)
@@ -296,12 +300,14 @@ public class MapperBuilderAssistant extends BaseBuilder {
         .useCache(valueOrDefault(useCache, isSelect))
         .cache(currentCache);
 
+    // 获取或创建 ParameterMap
     ParameterMap statementParameterMap = getStatementParameterMap(parameterMap, parameterType, id);
     if (statementParameterMap != null) {
       statementBuilder.parameterMap(statementParameterMap);
     }
 
     MappedStatement statement = statementBuilder.build();
+    // 添加 MappedStatement 到 configuration 的 mappedStatements 集合中
     configuration.addMappedStatement(statement);
     return statement;
   }

@@ -53,10 +53,19 @@ public class XMLStatementBuilder extends BaseBuilder {
     this.requiredDatabaseId = databaseId;
   }
 
+  /**
+   * 做的事情如下。
+   *  1、解析 <include> 节点
+   *  2、解析 <selectKey> 节点
+   *  3、解析 SQL，获取 SqlSource
+   *  4、构建 MappedStatement 实例
+   * 以上流程对应的代码比较复杂，每个步骤都能分析出一些东西来。
+   */
   public void parseStatementNode() {
     String id = context.getStringAttribute("id");
     String databaseId = context.getStringAttribute("databaseId");
 
+    // 根据 databaseId 进行检测
     if (!databaseIdMatchesCurrent(id, databaseId, this.requiredDatabaseId)) {
       return;
     }
@@ -71,12 +80,18 @@ public class XMLStatementBuilder extends BaseBuilder {
     String lang = context.getStringAttribute("lang");
     LanguageDriver langDriver = getLanguageDriver(lang);
 
+    // 通过别名解析 resultType 对应的类型
     Class<?> resultTypeClass = resolveClass(resultType);
     String resultSetType = context.getStringAttribute("resultSetType");
+
+    // 解析 Statement 类型，默认为 PREPARED
     StatementType statementType = StatementType.valueOf(context.getStringAttribute("statementType", StatementType.PREPARED.toString()));
+    // 解析 ResultSetType
     ResultSetType resultSetTypeEnum = resolveResultSetType(resultSetType);
 
+    // 获取节点的名称，比如 <select> 节点名称为 select
     String nodeName = context.getNode().getNodeName();
+    // 根据节点名称解析 SqlCommandType
     SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
     boolean isSelect = sqlCommandType == SqlCommandType.SELECT;
     boolean flushCache = context.getBooleanAttribute("flushCache", !isSelect);
@@ -84,13 +99,16 @@ public class XMLStatementBuilder extends BaseBuilder {
     boolean resultOrdered = context.getBooleanAttribute("resultOrdered", false);
 
     // Include Fragments before parsing
+    // 解析 <include> 节点
     XMLIncludeTransformer includeParser = new XMLIncludeTransformer(configuration, builderAssistant);
     includeParser.applyIncludes(context.getNode());
 
     // Parse selectKey after includes and remove them.
+    // 解析 <selectKey> 节点
     processSelectKeyNodes(id, parameterTypeClass, langDriver);
     
     // Parse the SQL (pre: <selectKey> and <include> were parsed and removed)
+    // 解析SQL语句
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
     String resultSets = context.getStringAttribute("resultSets");
     String keyProperty = context.getStringAttribute("keyProperty");
@@ -99,13 +117,21 @@ public class XMLStatementBuilder extends BaseBuilder {
     String keyStatementId = id + SelectKeyGenerator.SELECT_KEY_SUFFIX;
     keyStatementId = builderAssistant.applyCurrentNamespace(keyStatementId, true);
     if (configuration.hasKeyGenerator(keyStatementId)) {
+      // 获取 KeyGenerator 实例
       keyGenerator = configuration.getKeyGenerator(keyStatementId);
     } else {
+      // 创建 KeyGenerator 实例
       keyGenerator = context.getBooleanAttribute("useGeneratedKeys",
           configuration.isUseGeneratedKeys() && SqlCommandType.INSERT.equals(sqlCommandType))
           ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
     }
 
+    /*
+     * 构建 MappedStatement 对象，并将该对象存储到Configuration的mappedStatements 集合中
+     *
+     * 上面分析了XML配置解析成SqlSource，但这还没有结束。SqlSource中只能记录SQL语句信息，除此之外，这里还有一些额外的信息需要记录。
+     * 因此，我们需要一个类能够同时存储SqlSource和其他的信息。这个类就是MappedStatement。下面我们来看一下它的构建过程。
+     */
     builderAssistant.addMappedStatement(id, sqlSource, statementType, sqlCommandType,
         fetchSize, timeout, parameterMap, parameterTypeClass, resultMap, resultTypeClass,
         resultSetTypeEnum, flushCache, useCache, resultOrdered, 

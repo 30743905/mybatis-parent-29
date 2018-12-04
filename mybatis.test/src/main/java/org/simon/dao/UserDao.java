@@ -20,7 +20,8 @@ public interface UserDao {
 
   UserBean select(UserBean userBean);
 
-  UserBean select2(@Param("id") Long id, @Param("username") String username);
+  //UserBean select2(@Param("id") Long id, @Param("username") String username);
+  UserBean select2(Long id, String username);
 
   Integer insert(UserBean userBean);
 }
