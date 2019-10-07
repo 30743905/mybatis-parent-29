@@ -54,7 +54,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
-      // 如果方法是定义在 Object 类中的，则直接调用
+      // 如果方法是定义在 Object 类中的，则直接调用MapperProxy类实例中的方法
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, args);
         /*

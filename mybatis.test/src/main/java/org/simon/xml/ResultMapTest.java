@@ -49,6 +49,21 @@ public class ResultMapTest {
         inputStream.close();
     }
 
+
+    @Test
+    public void printMappedStatementInfo() throws Exception {
+        Configuration configuration = new Configuration();
+        configuration.setUseActualParamName(true);
+        String resource = "mapper/ArticleMapper.xml";
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        XMLMapperBuilder builder = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
+        builder.parse();
+
+        configuration.getMappedStatement("select");
+
+        inputStream.close();
+    }
+
     /** 简化 ResultMapping 输出结果 */
     private String simplify(ResultMapping resultMapping) {
         return String.format("ResultMapping{column='%s', property='%s', flags=%s, ...}",

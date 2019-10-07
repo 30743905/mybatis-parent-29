@@ -1,6 +1,10 @@
 package org.simon.domain;
 
+import org.apache.ibatis.annotations.Param;
+
 import java.util.Date;
+
+import lombok.Data;
 
 /**
  * @author simon
@@ -8,6 +12,7 @@ import java.util.Date;
  * @create 2018-11-27 21:46
  * @Description:TODO
  */
+@Data
 public class Article {
     private Long id;
     private String author;
@@ -15,49 +20,9 @@ public class Article {
     private String title;
     private String content;
 
-    public Article(Long id, String title, String content) {
+    public Article(@Param("id") Long id, @Param("title") String title, @Param("content") String content) {
         this.id = id;
         this.title = title;
-        this.content = content;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
         this.content = content;
     }
 }

@@ -32,13 +32,26 @@ import org.apache.ibatis.session.Configuration;
  * Can also have additional parameters that are created by the dynamic language (for loops, bind...).
  *
  * @author Clinton Begin
+ *
+ *我们在执行SQL时，一个重要的任务是将SQL语句解析出来。我们都知道SQL是配置在映射文件中的，但由于映射文件中的SQL可能会包含占位符#{}，
+ * 以及动态 SQL 标签，比如 <if>、<where> 等。因此，我们并不能直接使用映射文件中配置的SQL。MyBatis会将映射文件中的SQL解析成一组SQL片段。
+ * 如果某个片段中也包含动态SQL相关的标签，那么，MyBatis会对该片段再次进行分片。最终，一个SQL配置将会被解析成一个SQL片段树。
+ *
+ * 我们需要对片段树进行解析，以便从每个片段对象中获取相应的内容。然后将这些内容组合起来即可得到一个完成的SQL语句，这个完整的SQL以及其他的一些信息最终会存储在BoundSql对象中。
+ *
+ *
  */
 public class BoundSql {
 
+  //一个完整的 SQL 语句，可能会包含问号 ? 占位符
   private final String sql;
+  //参数映射列表，SQL 中的每个 #{xxx} 占位符都会被解析成相应的 ParameterMapping 对象
   private final List<ParameterMapping> parameterMappings;
+  //运行时参数，即用户传入的参数，比如 Article 对象，或是其他的参数
   private final Object parameterObject;
+  //附加参数集合，用于存储一些额外的信息，比如 datebaseId 等
   private final Map<String, Object> additionalParameters;
+  //additionalParameters 的元信息对象
   private final MetaObject metaParameters;
 
   public BoundSql(Configuration configuration, String sql, List<ParameterMapping> parameterMappings, Object parameterObject) {

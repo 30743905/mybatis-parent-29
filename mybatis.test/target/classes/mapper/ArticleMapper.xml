@@ -6,16 +6,18 @@
 <mapper namespace="xyz.coolblog.dao.ArticleDao">
 
     <resultMap id="articleResult" type="org.simon.domain.Article">
+        <!--
+             constructor元素 ，指定使用指定参数列表的构造函数来实例化领域模型。注意：其子元素顺序必须与参数列表顺序对应
+                                 idArg子元素 ，标记该入参为主键
+                                 arg子元素 ，标记该入参为普通字段(主键使用该子元素设置也是可以的)
+             配置name属性时，pojo类的构造方法要使用@Param注解，如：
+             Article(@Param("id") Long id, @Param("title") String title, @Param("content") String content)
+        -->
         <constructor>
-            <idArg column="id" javaType="long"/>
-            <arg column="title" javaType="String"/>
-            <arg column="content" javaType="String"/>
+            <idArg column="id"  name="id" javaType="long"/>
+            <arg column="title" name="title" javaType="String"/>
+            <arg column="content" name="content" javaType="String"/>
         </constructor>
-<!--        <constructor>
-            <idArg column="id" name="id"/>
-            <arg column="title" name="title"/>
-            <arg column="content" name="content"/>
-        </constructor>-->
         <id property="id" column="id"/>
         <result property="author" column="author"/>
         <result property="createTime" column="create_time"/>

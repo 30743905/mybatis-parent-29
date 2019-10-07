@@ -102,13 +102,15 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private void parseConfiguration(XNode root) {
     try {
-      //解析properties配置
+
       //issue #117 read properties first
+      //解析<properties>配置
       propertiesElement(root.evalNode("properties"));
-      //解析settings配置，并将其转换成properties对象
+      //解析<settings>配置，并将其转换成properties对象
       Properties settings = settingsAsProperties(root.evalNode("settings"));
       //加载vfs
       loadCustomVfs(settings);
+      //解析类型别名<typeAliases>
       typeAliasesElement(root.evalNode("typeAliases"));
       //插件解析
       pluginElement(root.evalNode("plugins"));
@@ -222,7 +224,10 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private void propertiesElement(XNode context) throws Exception {
     if (context != null) {
+      // 解析propertis的子节点，并将这些节点内容转换为属性对象Properties
       Properties defaults = context.getChildrenAsProperties();
+
+      // 解析<properties>节点中的resource和url属性，这两个属性不能同时存在，并从该属性中加载属性文件解析成properties
       String resource = context.getStringAttribute("resource");
       String url = context.getStringAttribute("url");
       if (resource != null && url != null) {
@@ -233,11 +238,14 @@ public class XMLConfigBuilder extends BaseBuilder {
       } else if (url != null) {
         defaults.putAll(Resources.getUrlAsProperties(url));
       }
+
       Properties vars = configuration.getVariables();
       if (vars != null) {
+        // 通过方法设置属性，比如 SqlSessionFactoryBuilder().build(reader, props) 或 SqlSessionFactoryBuilder().build(reader, environment, props)
         defaults.putAll(vars);
       }
       parser.setVariables(defaults);
+      // 将属性值设置到 configuration 中
       configuration.setVariables(defaults);
     }
   }

@@ -140,18 +140,33 @@ public class Configuration {
   protected Class<?> configurationFactory;
 
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
-  //插件链chain
+  // 插件链chain
   protected final InterceptorChain interceptorChain = new InterceptorChain();
+  // 类型处理器
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
+  // 类型别名
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
   protected final LanguageDriverRegistry languageRegistry = new LanguageDriverRegistry();
-
+  /**
+   * XML Mapper文件中的select|insert|update|delete被封装成MappedStatement，存放到该Map中
+   * 如：
+   *    findOne -> {Configuration$StrictMap$Ambiguity@2385}
+   *    org.simon.demo.demo1.mapper.ArticleDao.findOne -> {MappedStatement@2245}
+   *    org.simon.demo.demo1.mapper.AuthorDao.findOne -> {MappedStatement@2380}
+   */
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection");
   protected final Map<String, Cache> caches = new StrictMap<Cache>("Caches collection");
+  /**
+   * 存放XML Mapper文件中配置的ResultMap解析对象，如下：
+   *    mapper_resultMap[articleResult]_association[author] -> {ResultMap@2165}
+   *    authorResult -> {ResultMap@2073}
+   *    org.simon.demo.demo1.mapper.ArticleDao.authorResult -> {ResultMap@2073}
+   *    org.simon.demo.demo1.mapper.ArticleDao.mapper_resultMap[articleResult]_association[author] -> {ResultMap@2165}
+   */
   protected final Map<String, ResultMap> resultMaps = new StrictMap<ResultMap>("Result Maps collection");
   protected final Map<String, ParameterMap> parameterMaps = new StrictMap<ParameterMap>("Parameter Maps collection");
   protected final Map<String, KeyGenerator> keyGenerators = new StrictMap<KeyGenerator>("Key Generators collection");
-
+  // 存储哪些XML被解析过，如：mapper/demo.demo1/ArticleMapper.xml
   protected final Set<String> loadedResources = new HashSet<String>();
   protected final Map<String, XNode> sqlFragments = new StrictMap<XNode>("XML fragments parsed from previous mappers");
 

@@ -6,6 +6,7 @@ import java.io.Reader;
 import java.util.List;
 import org.apache.ibatis.binding.MapperProxyFactory;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -33,11 +34,30 @@ public class TestMain {
         .build(reader);
   }
 
+
+  @Test
+  public void fun0() throws IOException {
+    //LogFactory.useSlf4jLogging();
+    SqlSession session = factory.openSession();
+    //List<Object> ret = session.selectList("org.simon.dao.UserDao.queryall");
+    //System.out.println(ret);
+
+    UserDao userDao = session.getMapper(UserDao.class);
+    System.out.println(userDao.getClass().getName());
+    System.out.println(userDao instanceof MapperProxyFactory);
+    //System.out.println(JSON.toJSONString(userDao.queryall(), true));
+    System.out.println("------------");
+    System.out.println("all:"+userDao.queryall());
+    System.out.println("all:"+userDao.queryall());
+    System.out.println("all:"+userDao.queryall());
+    session.close();
+  }
+
   @Test
   public void fun1() throws IOException {
     SqlSession session = factory.openSession();
-    List<Object> ret = session.selectList("org.simon.dao.UserDao.queryall");
-    System.out.println(ret);
+    //List<Object> ret = session.selectList("org.simon.dao.UserDao.queryall");
+    //System.out.println(ret);
 
     UserDao userDao = session.getMapper(UserDao.class);
     System.out.println(userDao.getClass().getName());
@@ -77,7 +97,7 @@ public class TestMain {
     //bean2.setUsername("test3");
     userDao.select(bean2);
 
-    userDao.queryById(4L, "test4");
+    userDao.queryById(1L, "test4");
   }
 
   @Test

@@ -224,7 +224,7 @@ public class MapperMethod {
   }
 
   /**
-   * 前面说了 SqlCommand 中保存了一些和 SQL 相关的信息
+   * SqlCommand中保存了一些和SQL相关的信息
    */
   public static class SqlCommand {
 

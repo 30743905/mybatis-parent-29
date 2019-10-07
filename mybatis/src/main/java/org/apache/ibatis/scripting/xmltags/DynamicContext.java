@@ -28,6 +28,7 @@ import org.apache.ibatis.session.Configuration;
 
 /**
  * @author Clinton Begin
+ * DynamicContext 是 SQL 语句构建的上下文，每个 SQL 片段解析完成后，都会将解析结果存入 DynamicContext 中。待所有的 SQL 片段解析完毕后，一条完整的 SQL 语句就会出现在 DynamicContext 对象中。
  */
 public class DynamicContext {
 
@@ -38,6 +39,10 @@ public class DynamicContext {
     OgnlRuntime.setPropertyAccessor(ContextMap.class, new ContextAccessor());
   }
 
+  /**
+   * 其中sqlBuilder变量用于存放SQL片段的解析结果，bindings则用于存储一些额外的信息，比如运行时参数和databaseId等。
+   * bindings类型为ContextMap，ContextMap定义在DynamicContext中，是一个静态内部类。该类继承自HashMap，并覆写了get方法。
+   */
   private final ContextMap bindings;
   private final StringBuilder sqlBuilder = new StringBuilder();
   private int uniqueNumber = 0;
@@ -49,6 +54,7 @@ public class DynamicContext {
     } else {
       bindings = new ContextMap(null);
     }
+    // 存放运行时参数 parameterObject 以及 databaseId
     bindings.put(PARAMETER_OBJECT_KEY, parameterObject);
     bindings.put(DATABASE_ID_KEY, configuration.getDatabaseId());
   }
@@ -85,12 +91,14 @@ public class DynamicContext {
     @Override
     public Object get(Object key) {
       String strKey = (String) key;
+      // 检查是否包含 strKey，若包含则直接返回
       if (super.containsKey(strKey)) {
         return super.get(strKey);
       }
 
       if (parameterMetaObject != null) {
         // issue #61 do not modify the context when reading
+        // 从运行时参数中查找结果
         return parameterMetaObject.getValue(strKey);
       }
 

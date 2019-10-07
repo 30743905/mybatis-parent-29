@@ -38,14 +38,21 @@ import org.apache.ibatis.session.Configuration;
  */
 public class ResultMap {
   private Configuration configuration;
-
+  // xyz.coolblog.dao.ArticleDao.articleResult
   private String id;
+  // type属性，指定映射的pojo类型
   private Class<?> type;
+  // 用于存储 <id> 和 <result> 节点对应的 ResultMapping 对象
   private List<ResultMapping> resultMappings;
+  // 用于存储 <id> 和 <idArg> 节点对应的 ResultMapping 对象
   private List<ResultMapping> idResultMappings;
+  // 用于存储 <idArgs> 和 <arg> 节点对应的 ResultMapping 对象
   private List<ResultMapping> constructorResultMappings;
+  // 用于存储<resultMap>下非<constructor>节点的ResultMapping对象
   private List<ResultMapping> propertyResultMappings;
+  // 用于存储<id>、<result>、<idArg>、<arg>节点column属性
   private Set<String> mappedColumns;
+  //用于存储<id>和<result>节点的property属性，以及<idArgs>和<arg>节点的name属性
   private Set<String> mappedProperties;
   private Discriminator discriminator;
   private boolean hasNestedResultMaps;
