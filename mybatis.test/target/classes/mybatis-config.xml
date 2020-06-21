@@ -9,6 +9,7 @@
     <!--开启驼峰命名映射，如数据库字段：device_code自动可以映射到Bean中的deviceName，该属性默认false-->
     <setting name="mapUnderscoreToCamelCase" value="true"/>
     <setting name="logImpl" value="SLF4J" />
+
   </settings>
 
   <plugins>
@@ -20,7 +21,7 @@
       <transactionManager type="JDBC"></transactionManager>
       <dataSource type="POOLED">
         <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://localhost:3306/ssm?userSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF8&amp;serverTimezone=UTC"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/mybatis?userSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF8&amp;serverTimezone=UTC"/>
         <property name="username" value="root"/>
         <property name="password" value="123456"/>
       </dataSource>

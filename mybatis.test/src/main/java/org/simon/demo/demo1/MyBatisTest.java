@@ -45,6 +45,23 @@ public class MyBatisTest {
         try {
             ArticleDao articleDao = session.getMapper(ArticleDao.class);
             Article article = articleDao.findOne(1);
+            Article article2 = articleDao.findOne(1);
+            Author author = article.getAuthor();
+            article.setAuthor(null);
+            System.out.println("\nauthor info:");
+            System.out.println(author);
+            System.out.println("\narticles info:");
+            System.out.println(article);
+        } finally {
+            session.close();//关闭时才会将缓存刷新到二级缓存中
+        }
+
+
+        session = sqlSessionFactory.openSession();
+        try {
+            ArticleDao articleDao = session.getMapper(ArticleDao.class);
+            Article article = articleDao.findOne(1);
+            Article article2 = articleDao.findOne(1);
             Author author = article.getAuthor();
             article.setAuthor(null);
             System.out.println("\nauthor info:");
@@ -54,6 +71,8 @@ public class MyBatisTest {
         } finally {
             session.close();
         }
+
+
     }
 
     @Test
