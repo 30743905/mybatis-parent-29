@@ -155,6 +155,11 @@ public class Configuration {
    *    org.simon.demo.demo1.mapper.AuthorDao.findOne -> {MappedStatement@2380}
    */
   protected final Map<String, MappedStatement> mappedStatements = new StrictMap<MappedStatement>("Mapped Statements collection");
+  /**
+   * 二级缓存
+   * key: org.simon.demo.demo1.mapper.ArticleDao
+   * value: SynchronizedCache -> LoggingCache -> ScheduledCache -> FifoCache -> PerpetualCache(内部包装Hashmap存储)
+   */
   protected final Map<String, Cache> caches = new StrictMap<Cache>("Caches collection");
   /**
    * 存放XML Mapper文件中配置的ResultMap解析对象，如下：

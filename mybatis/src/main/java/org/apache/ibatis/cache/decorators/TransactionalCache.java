@@ -82,6 +82,11 @@ public class TransactionalCache implements Cache {
     return null;
   }
 
+  /**
+   * 注意：这时缓存只写入到当前对象的entriesToAddOnCommit，只有commit提交才会将entriesToAddOnCommit内容同步到二级缓存中，具体见flushPendingEntries方法
+   * @param key Can be any object but usually it is a {@link CacheKey}
+   * @param object
+   */
   @Override
   public void putObject(Object key, Object object) {
     entriesToAddOnCommit.put(key, object);
@@ -117,6 +122,9 @@ public class TransactionalCache implements Cache {
     entriesMissedInCache.clear();
   }
 
+  /**
+   * TransactionalCache ->  SynchronizedCache -> LoggingCache -> ScheduledCache -> FifoCache -> PerpetualCache(内部包装Hashmap存储)
+   */
   private void flushPendingEntries() {
     for (Map.Entry<Object, Object> entry : entriesToAddOnCommit.entrySet()) {
       delegate.putObject(entry.getKey(), entry.getValue());

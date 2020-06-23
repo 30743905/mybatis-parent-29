@@ -14,8 +14,6 @@
             size="512"
             flushInterval="600000"
             readOnly="true"
-            blocking=""
-            type=""
             />
 
     <!--<cache
@@ -52,5 +50,9 @@
         WHERE
             ar.author_id = au.id AND ar.id = #{id}
     </select>
+
+    <insert id="insert" parameterType="org.simon.demo.demo1.entity.Article">
+        insert into article(author_id, title) values (#{author.id}, #{title})
+    </insert>
 
 </mapper>

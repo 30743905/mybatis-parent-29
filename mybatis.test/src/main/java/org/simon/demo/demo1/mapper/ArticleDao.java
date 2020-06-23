@@ -13,4 +13,5 @@ import org.simon.demo.demo1.entity.Article;
 public interface ArticleDao {
 
     Article findOne(@Param("id") int id);
+    void insert(Article article);
 }

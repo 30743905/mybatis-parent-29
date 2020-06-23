@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * Article
@@ -13,6 +14,7 @@ import lombok.Data;
  * @author Tian ZhongBo
  * @date 2018-06-25 14:11:14
  */
+@Accessors(chain = true)
 @Data
 public class Article implements Serializable {
     private Integer id;

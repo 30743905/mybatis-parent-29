@@ -97,13 +97,16 @@ public class CachingExecutor implements Executor {
     Cache cache = ms.getCache();
     // 若映射文件中未配置缓存或参照缓存，此时 cache = null
     if (cache != null) {
+      //如果<select flushCache="true">，这这里就会刷新二级缓存
       flushCacheIfRequired(ms);
+      //ms.isUseCache()是<select useCache="true">
       if (ms.isUseCache() && resultHandler == null) {
+        //如果存储过程，包装没有OUT类型参数
         ensureNoOutParams(ms, boundSql);
-        @SuppressWarnings("unchecked")
+        //从二级缓存中获取
         List<E> list = (List<E>) tcm.getObject(cache, key);
         if (list == null) {
-          // 若缓存未命中，则调用被装饰类的 query 方法
+          // 若二级缓存未命中，则调用被装饰类(SimpleExecutor)的query方法
           list = delegate.<E> query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
           tcm.putObject(cache, key, list); // issue #578 and #116
         }

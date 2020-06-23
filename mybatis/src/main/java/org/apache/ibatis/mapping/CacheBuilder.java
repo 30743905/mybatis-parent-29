@@ -151,6 +151,7 @@ public class CacheBuilder {
       if (readWrite) {
         cache = new SerializedCache(cache);
       }
+      //ScheduledCache -> LoggingCache -> SynchronizedCache
       cache = new LoggingCache(cache);
       cache = new SynchronizedCache(cache);
       if (blocking) {

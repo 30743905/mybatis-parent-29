@@ -171,6 +171,10 @@ public abstract class BaseExecutor implements Executor {
       }
       // issue #601
       deferredLoads.clear();
+
+      /**
+       * <setting name="localCacheScope" value="STATEMENT"/> 全局禁用一级缓存
+       */
       if (configuration.getLocalCacheScope() == LocalCacheScope.STATEMENT) {
         // issue #482
         clearLocalCache();

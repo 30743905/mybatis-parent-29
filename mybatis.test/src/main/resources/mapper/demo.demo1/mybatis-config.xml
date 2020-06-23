@@ -10,6 +10,7 @@
     <setting name="mapUnderscoreToCamelCase" value="true"/>
     <setting name="logImpl" value="SLF4J" />
     <setting name="cacheEnabled" value="true"/><!-- 全局开启二级缓存开关，默认本身就是开启的，这样具体Mapper中才能开启二级缓存功能 -->
+    <setting name="localCacheScope" value="STATEMENT"/>
   </settings>
 
 
@@ -34,7 +35,7 @@
       <transactionManager type="JDBC"></transactionManager>
       <dataSource type="POOLED">
         <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://localhost:3306/mybatis?userSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF8&amp;serverTimezone=UTC"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/ssm?userSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF8&amp;serverTimezone=UTC"/>
         <property name="username" value="root"/>
         <property name="password" value="123456"/>
       </dataSource>

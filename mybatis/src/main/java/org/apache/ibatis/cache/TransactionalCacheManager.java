@@ -39,6 +39,9 @@ public class TransactionalCacheManager {
     getTransactionalCache(cache).putObject(key, value);
   }
 
+  /**
+   * CachingExecutor.close()或CachingExecutor.commit()调用时，触发当前方法调用
+   */
   public void commit() {
     for (TransactionalCache txCache : transactionalCaches.values()) {
       txCache.commit();
